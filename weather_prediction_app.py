@@ -29,7 +29,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 city = st.selectbox("📍 Select City",
-    ["Dhaka", "Barishal", "Chittagong", "Khulna", "Rajshahi", "Sylhet"]
+    ["Dhaka", "Chittagong", "Khulna", "Rajshahi", "Sylhet"]
 )
 
 url = f"http://api.openweathermap.org/data/2.5/forecast?q={city},BD&appid={API_KEY}&units=metric"
