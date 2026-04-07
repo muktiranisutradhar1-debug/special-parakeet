@@ -61,6 +61,17 @@ else:
 
     df = pd.DataFrame(weather_list)
     df['date'] = pd.to_datetime(df['date'])
+    # ---------------- DAILY FORECAST ----------------
+df['day'] = df['date'].dt.date
+
+daily_df = df.groupby('day').agg({
+    'temperature': 'mean',
+    'humidity': 'mean',
+    'rainfall': 'sum'
+}).reset_index()
+
+# limit to 5 days
+daily_df = daily_df.head(5)
 
     # ---------------- BEAUTIFUL METRIC CARDS ----------------
     st.markdown("### 📊 Overview")
@@ -99,6 +110,27 @@ else:
     st.markdown("### 🌧 Rainfall Chart")
     fig2 = px.bar(df, x="date", y="rainfall")
     st.plotly_chart(fig2, use_container_width=True)
+  # simple weather icon logic
+    icon = "☀️"
+    if row['rainfall'] > 5:
+        icon = "🌧️"
+    elif row['humidity'] > 80:
+        icon = "☁️"
+
+    cols[i].markdown(f"""
+        <div style='
+            background:#ffffff;
+            padding:15px;
+            border-radius:15px;
+            text-align:center;
+            box-shadow:0 4px 10px rgba(0,0,0,0.1);
+        '>
+            <h4>{row['day']}</h4>
+            <h2>{icon} {row['temperature']:.1f}°C</h2>
+            <p>💧 {row['humidity']:.0f}%</p>
+            <p>🌧 {row['rainfall']:.1f} mm</p>
+        </div>
+    """, unsafe_allow_html=True)
 
     # ---------------- MAP ----------------
     st.markdown("### 🗺 Location")
