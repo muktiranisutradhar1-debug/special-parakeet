@@ -138,7 +138,7 @@ for idx, row in daily_df.iterrows():
         icon = "❄️"
     cols[idx].markdown(f"""
         <div style='
-            background:#ffffff;
+            background:#02090A;
             padding:15px;
             border-radius:15px;
             text-align:center;
