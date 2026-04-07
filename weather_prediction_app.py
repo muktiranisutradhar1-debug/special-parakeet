@@ -96,7 +96,7 @@ else:
 
         cols[i].markdown(f"""
             <div style='
-                background:#ffffff;
+                background:#1CD3EB;
                 padding:15px;
                 border-radius:15px;
                 text-align:center;
