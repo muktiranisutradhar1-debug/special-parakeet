@@ -3,17 +3,14 @@ import requests
 import pandas as pd
 import plotly.express as px
 
-# 🔑 API KEY
 API_KEY = "f8c2a69b6af499e2ae8bbd110d092b13"
 
-# ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="Weather Dashboard",
     page_icon="🌦️",
     layout="centered"
 )
 
-# ---------------- CUSTOM CSS ----------------
 st.markdown("""
 <style>
     .stButton>button {
@@ -25,22 +22,16 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------- TITLE ----------------
 st.markdown("""
-    <h1 style='text-align: center; color: #4CAF50;'>
-        🌦 Bangladesh Weather Dashboard
-    </h1>
+<h1 style='text-align: center; color: #4CAF50;'>
+🌦 Bangladesh Weather Dashboard
+</h1>
 """, unsafe_allow_html=True)
 
-st.write("")
-
-# ---------------- CITY SELECT ----------------
-city = st.selectbox(
-    "📍 Select City",
+city = st.selectbox("📍 Select City",
     ["Dhaka", "Chittagong", "Khulna", "Rajshahi", "Sylhet"]
 )
 
-# ---------------- API ----------------
 url = f"http://api.openweathermap.org/data/2.5/forecast?q={city},BD&appid={API_KEY}&units=metric"
 data = requests.get(url).json()
 
@@ -61,86 +52,72 @@ else:
 
     df = pd.DataFrame(weather_list)
     df['date'] = pd.to_datetime(df['date'])
-    # ---------------- DAILY FORECAST ----------------
-df['day'] = df['date'].dt.date
 
-daily_df = df.groupby('day').agg({
-    'temperature': 'mean',
-    'humidity': 'mean',
-    'rainfall': 'sum'
-}).reset_index()
+    # ✅ DAILY FORECAST (FIXED POSITION)
+    df['day'] = df['date'].dt.date
 
-# limit to 5 days
-daily_df = daily_df.head(5)
+    daily_df = df.groupby('day').agg({
+        'temperature': 'mean',
+        'humidity': 'mean',
+        'rainfall': 'sum'
+    }).reset_index()
 
-    # ---------------- BEAUTIFUL METRIC CARDS ----------------
+    daily_df = daily_df.head(5)
+
+    # ✅ METRICS
     st.markdown("### 📊 Overview")
-
     col1, col2, col3 = st.columns(3)
 
-    col1.markdown(f"""
-        <div style='background:#ff7675;padding:15px;border-radius:15px;text-align:center;color:white;'>
-            <h4>🌡 Max Temp</h4>
-            <h2>{df['temperature'].max():.1f} °C</h2>
-        </div>
-    """, unsafe_allow_html=True)
+    col1.metric("🌡 Max Temp", f"{df['temperature'].max():.1f} °C")
+    col2.metric("💧 Avg Humidity", f"{df['humidity'].mean():.1f} %")
+    col3.metric("🌧 Total Rain", f"{df['rainfall'].sum():.1f} mm")
 
-    col2.markdown(f"""
-        <div style='background:#74b9ff;padding:15px;border-radius:15px;text-align:center;color:white;'>
-            <h4>💧 Avg Humidity</h4>
-            <h2>{df['humidity'].mean():.1f} %</h2>
-        </div>
-    """, unsafe_allow_html=True)
-
-    col3.markdown(f"""
-        <div style='background:#55efc4;padding:15px;border-radius:15px;text-align:center;color:black;'>
-            <h4>🌧 Total Rain</h4>
-            <h2>{df['rainfall'].sum():.1f} mm</h2>
-        </div>
-    """, unsafe_allow_html=True)
-
-    st.write("")
-
-    # ---------------- TEMPERATURE CHART ----------------
+    # ✅ CHARTS
     st.markdown("### 📈 Temperature Trend")
     fig1 = px.line(df, x="date", y="temperature")
     st.plotly_chart(fig1, use_container_width=True)
 
-    # ---------------- RAIN CHART ----------------
     st.markdown("### 🌧 Rainfall Chart")
     fig2 = px.bar(df, x="date", y="rainfall")
     st.plotly_chart(fig2, use_container_width=True)
-  # simple weather icon logic
-    icon = "☀️"
-    if row['rainfall'] > 5:
-        icon = "🌧️"
-    elif row['humidity'] > 80:
-        icon = "☁️"
 
-    cols[i].markdown(f"""
-        <div style='
-            background:#ffffff;
-            padding:15px;
-            border-radius:15px;
-            text-align:center;
-            box-shadow:0 4px 10px rgba(0,0,0,0.1);
-        '>
-            <h4>{row['day']}</h4>
-            <h2>{icon} {row['temperature']:.1f}°C</h2>
-            <p>💧 {row['humidity']:.0f}%</p>
-            <p>🌧 {row['rainfall']:.1f} mm</p>
-        </div>
-    """, unsafe_allow_html=True)
+    # ✅ FORECAST CARDS (FULL FIX)
+    st.markdown("### 📅 5-Day Forecast")
 
-    # ---------------- MAP ----------------
+    cols = st.columns(len(daily_df))
+
+    for i, row in daily_df.iterrows():
+
+        icon = "☀️"
+        if row['rainfall'] > 5:
+            icon = "🌧️"
+        elif row['humidity'] > 80:
+            icon = "☁️"
+
+        cols[i].markdown(f"""
+            <div style='
+                background:#ffffff;
+                padding:15px;
+                border-radius:15px;
+                text-align:center;
+                box-shadow:0 4px 10px rgba(0,0,0,0.1);
+            '>
+                <h4>{row['day']}</h4>
+                <h2>{icon} {row['temperature']:.1f}°C</h2>
+                <p>💧 {row['humidity']:.0f}%</p>
+                <p>🌧 {row['rainfall']:.1f} mm</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # ✅ MAP
     st.markdown("### 🗺 Location")
     st.map(df[['lat', 'lon']].drop_duplicates())
 
-    # ---------------- DATA TABLE ----------------
+    # ✅ TABLE
     with st.expander("📊 View Raw Data"):
         st.dataframe(df)
 
-    # ---------------- ALERTS ----------------
+    # ✅ ALERTS
     st.markdown("### 🚨 Alerts")
 
     if df['temperature'].max() > 35:
