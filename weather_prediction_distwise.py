@@ -79,7 +79,6 @@ df['date'] = pd.to_datetime(df['date'])
 
 # ---------------- METRICS ----------------
 st.markdown("### 📊 Overall Metrics")
-
 col1, col2, col3 = st.columns(3)
 col1.metric("🌡 Max Temp", f"{df['temperature'].max():.1f} °C")
 col2.metric("💧 Avg Humidity", f"{df['humidity'].mean():.1f} %")
@@ -103,19 +102,21 @@ daily_df = df.groupby(['district','day']).agg({
     'humidity': 'mean',
     'rainfall': 'sum'
 }).reset_index()
+
+# Limit to 5 days per district
 daily_df = daily_df.groupby('district').head(5).reset_index(drop=True)
 
 for district in districts.keys():
     st.markdown(f"#### {district}")
-    district_df = daily_df[daily_df['district'] == district]
-    cols = st.columns(len(district_df))
-    for i, row in district_df.iterrows():
+    district_df = daily_df[daily_df['district'] == district].reset_index(drop=True)
+    cols = st.columns(len(district_df))  # columns equal to number of days
+    for idx, row in district_df.iterrows():
         icon = "☀️"
         if row['rainfall'] > 5:
             icon = "🌧️"
         elif row['humidity'] > 80:
             icon = "☁️"
-        cols[i].markdown(f"""
+        cols[idx].markdown(f"""
             <div style='background:#ffffff;padding:15px;border-radius:15px;text-align:center;
             box-shadow:0 4px 10px rgba(0,0,0,0.1);'>
                 <h4>{row['day']}</h4>
