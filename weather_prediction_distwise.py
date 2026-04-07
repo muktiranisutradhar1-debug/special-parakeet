@@ -117,7 +117,7 @@ for district in districts.keys():
         elif row['humidity'] > 80:
             icon = "☁️"
         cols[idx].markdown(f"""
-            <div style='background:#ffffff;padding:15px;border-radius:15px;text-align:center;
+            <div style='background:#02090A;padding:15px;border-radius:15px;text-align:center;
             box-shadow:0 4px 10px rgba(0,0,0,0.1);'>
                 <h4>{row['day']}</h4>
                 <h2>{icon} {row['temperature']:.1f}°C</h2>
